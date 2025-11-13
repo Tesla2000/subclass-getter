@@ -1,3 +1,5 @@
+"""Utilities for recursively retrieving subclasses of a given class."""
+
 from collections.abc import Generator
 from typing import TypeVar
 
@@ -7,6 +9,69 @@ ClassType = TypeVar("ClassType", bound=type)
 def get_subclasses(
     base_class: type[ClassType],
 ) -> Generator[type[ClassType], None, None]:
-    for subclass in base_class.__subclasses__():
-        yield subclass
-        yield from get_subclasses(subclass)
+    """
+    Recursively yield all subclasses of a given base class using breadth-first traversal.
+
+    This function performs a breadth-first traversal of the class hierarchy,
+    yielding each subclass as it's discovered. Note that the same subclass
+    may be yielded multiple times if it appears in multiple inheritance paths.
+
+    Args:
+        base_class: The base class whose subclasses to retrieve.
+
+    Yields:
+        Each subclass found in the hierarchy, including indirect subclasses.
+        Subclasses may be yielded multiple times if they have multiple parent
+        classes that are themselves subclasses of base_class.
+
+    Example:
+        >>> class Animal: pass
+        >>> class Mammal(Animal): pass
+        >>> class Dog(Mammal): pass
+        >>> list(get_subclasses(Animal))
+        [<class 'Mammal'>, <class 'Dog'>]
+    """
+    to_process = [base_class]
+    while to_process:
+        current = to_process.pop()
+        for subclass in current.__subclasses__():
+            yield subclass
+            to_process.append(subclass)
+
+
+def get_unique_subclasses(
+    base_class: type[ClassType],
+) -> Generator[type[ClassType], None, None]:
+    """
+    Recursively yield unique subclasses of a given base class using breadth-first traversal.
+
+    This function yields each subclass exactly once, regardless of how many
+    inheritance paths lead to it. Memory-efficient as it uses a generator and
+    only tracks seen classes, not all results.
+
+    Particularly useful with diamond inheritance where a class may appear
+    multiple times in get_subclasses() output.
+
+    Args:
+        base_class: The base class whose subclasses to retrieve.
+
+    Yields:
+        Each unique subclass found in the hierarchy, including indirect subclasses.
+
+    Example:
+        >>> class Base: pass
+        >>> class Left(Base): pass
+        >>> class Right(Base): pass
+        >>> class Diamond(Left, Right): pass
+        >>> # get_subclasses yields Diamond twice (via Left and Right)
+        >>> len(list(get_subclasses(Base)))
+        4
+        >>> # get_unique_subclasses yields each class only once
+        >>> len(list(get_unique_subclasses(Base)))
+        3
+    """
+    seen = set()
+    for subclass in get_subclasses(base_class):
+        if subclass not in seen:
+            seen.add(subclass)
+            yield subclass

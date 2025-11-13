@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "subclass-getter"
-version = "0.1.0"
+version = "0.1.1"
 description = "Gets subclasses of a class recursively"
 authors = ["Tesla2000 <fratajczak124@gmail.com>"]
 readme = "README.md"

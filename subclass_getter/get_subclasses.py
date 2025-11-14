@@ -3,7 +3,7 @@
 from collections.abc import Generator
 from typing import TypeVar
 
-ClassType = TypeVar("ClassType", bound=type)
+ClassType = TypeVar("ClassType")
 
 
 def get_subclasses(

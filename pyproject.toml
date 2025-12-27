@@ -1,14 +1,11 @@
-[tool.poetry]
+[project]
 name = "subclass-getter"
 version = "0.1.2"
 description = "Gets subclasses of a class recursively"
-authors = ["Tesla2000 <fratajczak124@gmail.com>"]
 readme = "README.md"
-
-[tool.poetry.dependencies]
-python = "^3.9"
-
+authors = [{ name = "Tesla2000", email = "fratajczak124@gmail.com" }]
+requires-python = ">=3.9"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -1,5 +1,6 @@
 """Utilities for recursively retrieving subclasses of a given class."""
 
+from abc import ABC
 from collections.abc import Generator
 from typing import TypeVar
 
@@ -7,7 +8,7 @@ ClassType = TypeVar("ClassType")
 
 
 def get_subclasses(
-    base_class: type[ClassType],
+    base_class: type[ClassType], exclude_abstract: bool = True
 ) -> Generator[type[ClassType], None, None]:
     """
     Recursively yield all subclasses of a given base class using breadth-first traversal.
@@ -18,6 +19,7 @@ def get_subclasses(
 
     Args:
         base_class: The base class whose subclasses to retrieve.
+        exclude_abstract: Wherethere to exclude abstract subclasses from generator result.
 
     Yields:
         Each subclass found in the hierarchy, including indirect subclasses.
@@ -35,12 +37,14 @@ def get_subclasses(
     while to_process:
         current = to_process.pop()
         for subclass in current.__subclasses__():
-            yield subclass
+            if not exclude_abstract or ABC not in subclass.__bases__:
+                yield subclass
             to_process.append(subclass)
 
 
 def get_unique_subclasses(
     base_class: type[ClassType],
+    exclude_abstract: bool = True,
 ) -> Generator[type[ClassType], None, None]:
     """
     Recursively yield unique subclasses of a given base class using breadth-first traversal.
@@ -54,6 +58,7 @@ def get_unique_subclasses(
 
     Args:
         base_class: The base class whose subclasses to retrieve.
+        exclude_abstract: Wherethere to exclude abstract subclasses from generator result.
 
     Yields:
         Each unique subclass found in the hierarchy, including indirect subclasses.
@@ -74,4 +79,5 @@ def get_unique_subclasses(
     for subclass in get_subclasses(base_class):
         if subclass not in seen:
             seen.add(subclass)
-            yield subclass
+            if not exclude_abstract or ABC not in subclass.__bases__:
+                yield subclass
